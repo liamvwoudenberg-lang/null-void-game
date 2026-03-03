@@ -38,6 +38,22 @@
     height: 100%;
     background-color: #00ff00;
     transition: width 0.3s ease-in-out, background-color 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.will-to-live-bar::after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.4) 2px,
+            rgba(0, 0, 0, 0.4) 4px);
+    pointer-events: none;
 }
 
 .will-to-live-bar.critical {

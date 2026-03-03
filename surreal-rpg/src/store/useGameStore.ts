@@ -23,6 +23,7 @@ export interface ChatMessage {
 }
 
 interface GameState {
+  apiKey: string | null;
   playerX: number;
   playerY: number;
   mapData: TileData[];
@@ -30,32 +31,42 @@ interface GameState {
   masterBlueprint: Blueprint | null;
   chatHistory: ChatMessage[];
   isGeneratingEncounter: boolean;
+  typingHistoryIndex: number;
 
   isAppReady: boolean;
   backgroundImage: string | null;
   loadingTooltip: string;
+  isIntroFinished: boolean;
 
-  willToLive: number;
+  hp: number;
+  inventory: string[];
+  currentEnemy: { name: string; hp: number; } | null;
   insubordination: number;
   debuff: string | null;
   debuffStepsLeft: number;
   isGlitching: boolean;
+
+  setApiKey: (key: string | null) => void;
 
   movePlayer: (direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'JUMP') => void;
   setMasterBlueprint: (blueprint: Blueprint) => void;
   setGameState: (state: GameStateEnum) => void;
   addChatMessage: (message: ChatMessage) => void;
   setGeneratingEncounter: (isGenerating: boolean) => void;
+  advanceTypingIndex: () => void;
   markTileVisited: (x: number, y: number) => void;
 
   setAppReady: (ready: boolean) => void;
   setBackgroundImage: (url: string | null) => void;
   setLoadingTooltip: (tooltip: string) => void;
+  setIntroFinished: (finished: boolean) => void;
 
-  decreaseWillToLive: (amount: number) => void;
+  decreaseHp: (amount: number) => void;
   addInsubordination: (amount: number) => void;
   setDebuff: (text: string | null, steps: number) => void;
   triggerGlitch: () => void;
+  processEncounterResult: (encounter: import('../api/schema').Encounter) => void;
+  submitAction: (actionText: string) => Promise<void>;
 }
 
 const generateInitialMap = (): TileData[] => {
@@ -80,6 +91,7 @@ const generateInitialMap = (): TileData[] => {
 };
 
 export const useGameStore = create<GameState>((set) => ({
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY || null,
   playerX: 1, // start at 1,1 instead of 0,0 since edges are walls
   playerY: 1,
   mapData: generateInitialMap(),
@@ -89,14 +101,20 @@ export const useGameStore = create<GameState>((set) => ({
     { role: 'system', content: 'INITIALIZING ZERO-SESSION PROTOCOL...' }
   ],
   isGeneratingEncounter: false,
+  typingHistoryIndex: 0,
   isAppReady: false,
   backgroundImage: null,
   loadingTooltip: "Establishing bizarre connection...",
-  willToLive: 100,
+  isIntroFinished: false,
+  hp: 100,
+  inventory: [],
+  currentEnemy: null,
   insubordination: 0,
   debuff: null,
   debuffStepsLeft: 0,
   isGlitching: false,
+
+  setApiKey: (key) => set({ apiKey: key }),
 
   setMasterBlueprint: (blueprint) => set({ masterBlueprint: blueprint }),
   setGameState: (gameState) => set({ gameState }),
@@ -104,9 +122,11 @@ export const useGameStore = create<GameState>((set) => ({
     chatHistory: [...state.chatHistory, message]
   })),
   setGeneratingEncounter: (isGenerating) => set({ isGeneratingEncounter: isGenerating }),
+  advanceTypingIndex: () => set((state) => ({ typingHistoryIndex: state.typingHistoryIndex + 1 })),
   setAppReady: (ready) => set({ isAppReady: ready }),
   setBackgroundImage: (url) => set({ backgroundImage: url }),
   setLoadingTooltip: (tooltip) => set({ loadingTooltip: tooltip }),
+  setIntroFinished: (finished) => set({ isIntroFinished: finished }),
   markTileVisited: (x, y) => set((state) => {
     const newMapData = [...state.mapData];
     const index = y * GRID_SIZE + x;
@@ -115,7 +135,7 @@ export const useGameStore = create<GameState>((set) => ({
     }
     return { mapData: newMapData };
   }),
-  decreaseWillToLive: (amount) => set((state) => ({ willToLive: Math.max(0, state.willToLive - amount) })),
+  decreaseHp: (amount) => set((state) => ({ hp: Math.max(0, state.hp - amount) })),
   addInsubordination: (amount) => set((state) => ({ insubordination: state.insubordination + amount })),
   setDebuff: (text, steps) => set({ debuff: text, debuffStepsLeft: steps }),
   triggerGlitch: () => {
@@ -123,6 +143,110 @@ export const useGameStore = create<GameState>((set) => ({
     setTimeout(() => {
       set({ isGlitching: false });
     }, 500); // Glitch lasts for 500ms
+  },
+  processEncounterResult: (encounter) => set((state) => {
+    let newInsub = state.insubordination;
+    let isGlitching = state.isGlitching;
+    let newWill = state.hp;
+    let newDebuff = state.debuff;
+    let newDebuffSteps = state.debuffStepsLeft;
+    let newInventory = [...state.inventory];
+    let newEnemy = state.currentEnemy;
+    let chatUpdates: ChatMessage[] = [];
+
+    if (encounter.insubordination_score_increment > 0) {
+      newInsub += encounter.insubordination_score_increment;
+      isGlitching = true;
+      setTimeout(() => {
+        useGameStore.setState({ isGlitching: false });
+      }, 500);
+    }
+
+    if (encounter.hp_damage && encounter.hp_damage > 0) {
+      newWill = Math.max(0, newWill - encounter.hp_damage);
+      chatUpdates.push({ role: 'system', content: `HP DAMAGE TAKEN: -${encounter.hp_damage}` });
+    }
+
+    if (encounter.debuff_string) {
+      newDebuff = encounter.debuff_string;
+      newDebuffSteps = 5;
+      chatUpdates.push({ role: 'system', content: `DEBUFF APPLIED: ${encounter.debuff_string.toUpperCase()}` });
+    }
+
+    if (encounter.item_found) {
+      newInventory.push(encounter.item_found);
+      chatUpdates.push({ role: 'system', content: `ITEM ACQUIRED: ${encounter.item_found.toUpperCase()}` });
+    }
+
+    if (encounter.enemy_name && encounter.enemy_hp !== null) {
+      if (encounter.enemy_hp > 0) {
+        newEnemy = { name: encounter.enemy_name, hp: encounter.enemy_hp };
+      } else {
+        newEnemy = null;
+        chatUpdates.push({ role: 'system', content: `ENEMY DEFEATED: ${encounter.enemy_name.toUpperCase()}` });
+      }
+    } else if (encounter.encounter_resolved) {
+      // Clear enemy if the encounter is resolved and no new enemy data is provided
+      newEnemy = null;
+    }
+
+    return {
+      insubordination: newInsub,
+      isGlitching: isGlitching,
+      hp: newWill,
+      inventory: newInventory,
+      currentEnemy: newEnemy,
+      debuff: newDebuff,
+      debuffStepsLeft: newDebuffSteps,
+      chatHistory: [...state.chatHistory, ...chatUpdates]
+    };
+  }),
+
+  submitAction: async (actionText: string) => {
+    const state = useGameStore.getState();
+    const { masterBlueprint, playerX, playerY, insubordination, isGeneratingEncounter, gameState } = state;
+
+    if (!masterBlueprint || isGeneratingEncounter || gameState !== 'IN_ENCOUNTER') return;
+
+    state.addChatMessage({ role: 'player', content: actionText });
+
+    // Handle Instant Popup Acknowledgement Fast-Path
+    if (actionText === 'Acknowledge and Accept Penalty') {
+      state.decreaseHp(5);
+      state.addChatMessage({ role: 'system', content: 'HP DAMAGE TAKEN: -5\nMOVEMENT UNLOCKED.' });
+      state.setGameState('EXPLORING');
+      return;
+    }
+
+    state.setGeneratingEncounter(true);
+
+    try {
+      const { handlePlayerAction } = await import('../api/geminiClient');
+      const encounterResult = await handlePlayerAction(actionText, { x: playerX, y: playerY }, masterBlueprint, insubordination);
+
+      state.addChatMessage({
+        role: 'narrator',
+        content: encounterResult.narrative_text,
+        asciiArt: encounterResult.ascii_art,
+        aiSnark: encounterResult.ai_snark
+      });
+
+      state.processEncounterResult(encounterResult);
+
+      if (encounterResult.encounter_resolved) {
+        state.setGameState('EXPLORING');
+        state.addChatMessage({ role: 'system', content: 'MOVEMENT UNLOCKED.' });
+      } else {
+        // Keep gameState as IN_ENCOUNTER to allow follow-up actions
+        state.addChatMessage({ role: 'system', content: 'COMBAT/EVENT CONTINUES. AWAITING INPUT.' });
+      }
+    } catch (e) {
+      console.error("Action logic failed", e);
+      state.addChatMessage({ role: 'system', content: 'ACTION PROCESSING ERROR. TRY AGAIN.' });
+      state.setGameState('EXPLORING');
+    } finally {
+      state.setGeneratingEncounter(false);
+    }
   },
 
   movePlayer: (direction) => set((state) => {

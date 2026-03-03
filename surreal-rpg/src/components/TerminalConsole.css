@@ -27,11 +27,11 @@
 .terminal-header {
     background-color: #ffb000;
     color: #050505;
-    padding: 6px 8px;
+    padding: 8px 12px;
     font-weight: bold;
-    font-size: 0.85em;
+    font-size: 1.1em;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     border-bottom: 2px solid #443000;
 }
 
@@ -42,6 +42,11 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    /* Ensure messages stay above scanlines but scroll within container */
+    z-index: 3;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: #553a00 #050505;
 }
 
 .message {
@@ -49,7 +54,9 @@
     flex-direction: column;
     word-wrap: break-word;
     white-space: pre-wrap;
-    line-height: 1.4;
+    line-height: 1.5;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
 }
 
 .message .prompt {
@@ -57,6 +64,12 @@
     font-weight: bold;
     display: inline-block;
     margin-right: 8px;
+}
+
+.message.role-narrator .content {
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 .message.role-player {
@@ -67,8 +80,15 @@
     color: #ff3333;
     font-weight: bold;
     border: 1px solid #770000;
-    padding: 4px;
+    padding: 8px 12px;
     background-color: #220000;
+    margin: 8px 0;
+}
+
+.message.role-system.old-log {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+    border-color: #440000;
 }
 
 .message.role-narrator .prompt {
@@ -117,17 +137,25 @@
     margin-bottom: 4px;
 }
 
-/* Custom Scrollbar for Terminal */
+/* Custom Retro Blocky Scrollbar for Terminal */
 .terminal-messages::-webkit-scrollbar {
-    width: 6px;
+    width: 12px;
 }
 
 .terminal-messages::-webkit-scrollbar-track {
-    background: #050505;
+    background: #000;
+    border-left: 1px solid #332200;
 }
 
 .terminal-messages::-webkit-scrollbar-thumb {
-    background: #553a00;
+    background-color: #553a00;
+    border: 1px solid #ffb000;
+    /* Blocky style without rounding */
+    border-radius: 0;
+}
+
+.terminal-messages::-webkit-scrollbar-thumb:hover {
+    background-color: #ffb000;
 }
 
 .terminal-glitch {

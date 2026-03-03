@@ -12,17 +12,19 @@ export const WorldMap = React.memo(() => {
             className="world-map"
             style={{
                 display: 'grid',
-                gridTemplateColumns: `repeat(${GRID_SIZE}, 32px)`,
-                gridTemplateRows: `repeat(${GRID_SIZE}, 32px)`,
-                width: `${GRID_SIZE * 32}px`,
-                height: `${GRID_SIZE * 32}px`,
-                position: 'absolute', // Positioned absolutely underneath the player
+                gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+                gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
                 top: 0,
                 left: 0,
+                border: '2px solid #33ff33', // toxic green border around map
+                boxShadow: '0 0 15px rgba(51, 255, 51, 0.2)'
             }}
         >
             {mapData.map((tile) => (
-                <Tile key={`${tile.x}-${tile.y}`} x={tile.x} y={tile.y} terrainType={tile.terrainType} />
+                <Tile key={`${tile.x}-${tile.y}`} x={tile.x} y={tile.y} terrainType={tile.terrainType} visited={tile.visited} />
             ))}
         </div>
     );

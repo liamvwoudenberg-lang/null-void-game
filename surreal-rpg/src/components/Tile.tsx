@@ -4,6 +4,7 @@ interface TileProps {
     x: number;
     y: number;
     terrainType: string;
+    visited: boolean;
 }
 
 const getTerrainColor = (type: string) => {
@@ -15,16 +16,17 @@ const getTerrainColor = (type: string) => {
     }
 };
 
-const TileComponent: React.FC<TileProps> = ({ terrainType }) => {
+const TileComponent: React.FC<TileProps> = ({ terrainType, visited }) => {
     return (
         <div
             className="tile"
             style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: getTerrainColor(terrainType),
+                width: '100%',
+                height: '100%',
+                backgroundColor: visited ? getTerrainColor(terrainType) : '#000000',
                 boxSizing: 'border-box',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                transition: 'background-color 0.3s ease'
             }}
         />
     );
@@ -34,6 +36,7 @@ export const Tile = React.memo(TileComponent, (prevProps, nextProps) => {
     return (
         prevProps.x === nextProps.x &&
         prevProps.y === nextProps.y &&
-        prevProps.terrainType === nextProps.terrainType
+        prevProps.terrainType === nextProps.terrainType &&
+        prevProps.visited === nextProps.visited
     );
 });

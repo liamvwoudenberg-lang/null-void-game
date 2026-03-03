@@ -1,5 +1,6 @@
 .app-layout {
   display: flex;
+  flex-direction: row;
   width: 100vw;
   height: 100vh;
   background-color: #050505;
@@ -12,7 +13,34 @@
   justify-content: center;
   align-items: center;
   background-color: #050505;
-  border-right: 2px solid #ffb000;
+  border-right: 2px solid #ff3333;
+  /* Adjusted to harsh red palette */
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-container {
+  /* Container for the responsive square map */
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-label {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  color: #ffb000;
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .terminal-section {
@@ -21,4 +49,39 @@
   flex-direction: column;
   background-color: #050505;
   height: 100%;
+  min-width: 0;
+  position: relative;
+}
+
+.terminal-console {
+  flex-grow: 1;
+  overflow: hidden;
+  /* Let inner container handle scroll */
+}
+
+.action-input-container {
+  /* Keep fixed at bottom */
+  flex-shrink: 0;
+  border-top: 2px solid #ff3333;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .game-section {
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 2px solid #ff3333;
+    padding: 20px 0;
+    min-height: 50vh;
+    /* Ensure map is visible on mobile */
+  }
+
+  .terminal-section {
+    flex: 1 1 auto;
+    height: auto;
+  }
 }
