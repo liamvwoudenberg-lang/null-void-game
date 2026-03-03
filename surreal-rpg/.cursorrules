@@ -1,0 +1,5 @@
+1. CRITICAL: Use `zustand` for all rapidly changing game state (player coordinates, health).
+2. FORBIDDEN: React Context or local parent state for high-frequency game data.
+3. CRITICAL: Utilize `React.memo` with custom comparison functions for static grid tiles.
+4. CRITICAL: Use `zod` for defining all external data schemas.
+5. CRITICAL: Prefer hardware-accelerated CSS `transform` rules over altering top/left positioning for animations.

@@ -1,0 +1,20 @@
+.hoveringNpc {
+    animation: hover 2s ease-in-out infinite;
+    will-change: transform;
+    /* Optional: Add some constraints so it doesn't break layout */
+    display: inline-block;
+}
+
+@keyframes hover {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}

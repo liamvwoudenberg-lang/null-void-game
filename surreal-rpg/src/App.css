@@ -1,0 +1,24 @@
+.app-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #050505;
+  overflow: hidden;
+}
+
+.game-section {
+  flex: 1 1 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #050505;
+  border-right: 2px solid #ffb000;
+}
+
+.terminal-section {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  background-color: #050505;
+  height: 100%;
+}

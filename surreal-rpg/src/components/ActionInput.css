@@ -1,0 +1,155 @@
+.action-input-container {
+    background-color: #050505;
+    border-top: 2px solid #ffb000;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+}
+
+/* EXPLORING MODE (D-PAD) */
+.d-pad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.d-pad-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.d-pad button {
+    background-color: #111;
+    color: #ffb000;
+    border: 1px solid #553a00;
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    border-radius: 2px;
+    transition: all 0.1s;
+    font-family: inherit;
+}
+
+.d-pad button:hover:not(:disabled) {
+    background-color: #332200;
+    color: #ffb000;
+    cursor: pointer;
+}
+
+.d-pad button:disabled {
+    background-color: #000;
+    border-color: #222;
+    color: #222;
+    cursor: not-allowed;
+}
+
+.d-pad .jump-btn {
+    width: 64px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.exploring-status {
+    color: #555555;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    letter-spacing: 2px;
+}
+
+/* ENCOUNTER MODE (ACTIONS) */
+.encounter-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+.predefined-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.choice-btn {
+    background-color: #050505;
+    color: #ffb000;
+    border: 1px solid #553a00;
+    padding: 8px 12px;
+    text-align: left;
+    font-family: inherit;
+    border-radius: 2px;
+    transition: all 0.1s;
+}
+
+.choice-btn:hover:not(:disabled) {
+    background-color: #221500;
+    color: #ffb000;
+}
+
+.choice-btn:disabled {
+    background-color: #050505;
+    border-color: #222;
+    color: #222;
+}
+
+.free-text-form {
+    display: flex;
+    align-items: stretch;
+    background-color: #000;
+    border: 1px solid #555;
+    border-radius: 2px;
+    padding: 4px 8px;
+}
+
+.free-text-form:focus-within {
+    border-color: #ffb000;
+}
+
+.prompt-char {
+    color: #885500;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.terminal-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 8px;
+    outline: none;
+}
+
+.terminal-input:disabled {
+    color: #555;
+}
+
+.submit-action-btn {
+    background-color: #221500;
+    color: #ffb000;
+    border: 1px solid #553a00;
+    font-weight: bold;
+    padding: 0 16px;
+    border-radius: 2px;
+    transition: all 0.1s;
+    font-family: inherit;
+}
+
+.submit-action-btn:hover:not(:disabled) {
+    background-color: #ffb000;
+    color: #050505;
+}
+
+.submit-action-btn:disabled {
+    background-color: #050505;
+    border-color: #222;
+    color: #222;
+}
