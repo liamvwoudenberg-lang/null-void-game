@@ -150,9 +150,9 @@ export const useGameStore = create<GameState>((set) => ({
     let newWill = state.hp;
     let newDebuff = state.debuff;
     let newDebuffSteps = state.debuffStepsLeft;
-    let newInventory = [...state.inventory];
+    const newInventory = [...state.inventory];
     let newEnemy = state.currentEnemy;
-    let chatUpdates: ChatMessage[] = [];
+    const chatUpdates: ChatMessage[] = [];
 
     if (encounter.insubordination_score_increment > 0) {
       newInsub += encounter.insubordination_score_increment;

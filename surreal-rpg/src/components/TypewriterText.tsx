@@ -9,12 +9,13 @@ interface TypewriterTextProps {
 export const TypewriterText = ({ text, speed = 25, onComplete }: TypewriterTextProps) => {
     const [displayedText, setDisplayedText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [prevText, setPrevText] = useState(text);
 
-    useEffect(() => {
-        // Reset when text changes
+    if (text !== prevText) {
+        setPrevText(text);
         setDisplayedText('');
         setCurrentIndex(0);
-    }, [text]);
+    }
 
     useEffect(() => {
         if (currentIndex < text.length) {

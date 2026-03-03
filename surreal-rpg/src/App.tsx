@@ -128,6 +128,7 @@ OBJECTIVE SECURED: ${blueprint.cynical_win_condition}
     };
 
     initGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey]);
 
   // Tile Movement Effect

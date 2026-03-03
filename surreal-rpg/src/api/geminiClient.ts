@@ -53,9 +53,10 @@ export async function generateMasterStory() {
                 type: Type.ARRAY,
                 items: { type: Type.STRING },
                 description: "A list of 10 extremely short, infuriating bureaucratic fines or penalties (e.g., 'Breathing Tax Assessed'). None should require a response, just acknowledgement."
-            }
+            },
+            intro_text: { type: Type.STRING, description: "A substantial block of text introducing the miserable setting. Tell the player they can use the text box to type actions like 'attack', 'use [item]', and must watch their HP." }
         },
-        required: ["overarching_misery", "cynical_win_condition", "troll_rules", "instant_popups"]
+        required: ["overarching_misery", "cynical_win_condition", "troll_rules", "instant_popups", "intro_text"]
     };
 
     const result = await withTimeout(getAIClient().models.generateContent({
@@ -132,9 +133,13 @@ Set encounter_resolved to false ONLY if they are actively in combat or a multi-s
             ai_snark: { type: Type.STRING, description: "A hidden internal monologue where the AI brutally judges the player's life choices and optimism." },
             debuff_string: { type: Type.STRING, description: "A short string describing a meaningless mechanical debuff (e.g. 'inverted controls'). Set null if none.", nullable: true },
             insubordination_score_increment: { type: Type.INTEGER, description: "Integer amount (0-10) to increase player's Insubordination. Higher if they act rebellious." },
-            suggested_will_damage: { type: Type.INTEGER, description: "Integer amount (0-20) to permanently subtract from the player's Will to Live based on how naive or compliant their choice was. 0 if they were adequately cynical." }
+            hp_damage: { type: Type.INTEGER, description: "Integer amount (0-20) to permanently subtract from the player's HP based on how naive or compliant their choice was. 0 if they were adequately cynical." },
+            enemy_name: { type: Type.STRING, description: "Absurd name of an enemy if one appears or is fought. Set null if none.", nullable: true },
+            enemy_hp: { type: Type.INTEGER, description: "Current HP of the enemy (0-100). Set null if no enemy.", nullable: true },
+            item_found: { type: Type.STRING, description: "Absurd item the player finds. Set null if none.", nullable: true },
+            encounter_resolved: { type: Type.BOOLEAN, description: "True if narrative/combat ends and player can move on. False if combat/event continues and requires another action immediately." }
         },
-        required: ["narrative_text", "predefined_choices", "ai_snark", "insubordination_score_increment", "suggested_will_damage"]
+        required: ["narrative_text", "predefined_choices", "ai_snark", "insubordination_score_increment", "hp_damage", "encounter_resolved"]
     };
 
     const result = await withTimeout(getAIClient().models.generateContent({
@@ -222,6 +227,7 @@ export async function generateAudioTTS(textToSpeak: string) {
                     }
                 }
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any // using 'any' to bypass potential TS errors if types are lagging behind beta models
     }));
 

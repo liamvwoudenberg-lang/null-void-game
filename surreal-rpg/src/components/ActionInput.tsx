@@ -8,7 +8,7 @@ export const ActionInput = () => {
     const chatHistory = useGameStore(state => state.chatHistory);
     const isGeneratingEncounter = useGameStore(state => state.isGeneratingEncounter);
     const typingHistoryIndex = useGameStore(state => state.typingHistoryIndex);
-    const decreaseWillToLive = useGameStore(state => state.decreaseWillToLive);
+    const decreaseHp = useGameStore(state => state.decreaseHp);
     const submitAction = useGameStore(state => state.submitAction);
 
     const [inputText, setInputText] = useState('');
@@ -29,7 +29,7 @@ export const ActionInput = () => {
 
     const handleChoiceClick = (choice: string) => {
         if (isDisabled || gameState !== 'IN_ENCOUNTER') return;
-        decreaseWillToLive(10); // Compliance Penalty
+        decreaseHp(10); // Compliance Penalty
         submitAction(choice);
         setShowOptions(false);
     };
