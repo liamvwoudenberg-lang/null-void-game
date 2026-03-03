@@ -83,7 +83,7 @@ export async function generateMasterStory() {
 }
 
 export async function handlePlayerAction(playerInput: string | null, currentTile: { x: number, y: number }, masterBlueprint: Blueprint, currentInsubordination: number) {
-    const { hp, inventory, currentEnemy } = useGameStore.getState();
+    const { hp, inventory, currentEnemy, chatHistory } = useGameStore.getState();
 
     let inputContent = `The player is on Tile [${currentTile.x},${currentTile.y}].\n`;
     inputContent += `Player HP: ${hp}\n`;
@@ -91,6 +91,11 @@ export async function handlePlayerAction(playerInput: string | null, currentTile
 
     if (currentEnemy) {
         inputContent += `Current Enemy: ${currentEnemy.name} (HP: ${currentEnemy.hp})\n`;
+    }
+
+    const recentHistory = chatHistory.slice(-8).map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n');
+    if (recentHistory) {
+        inputContent += `\nRecent Interaction History:\n${recentHistory}\n\n`;
     }
 
     if (playerInput) {
@@ -101,11 +106,14 @@ export async function handlePlayerAction(playerInput: string | null, currentTile
 
     const systemPrompt = `You are an antagonistic, rage-baiting Game Master. Read the Master Blueprint:
 Misery: ${masterBlueprint.overarching_misery}
+Character Context / Setting (Intro Text): ${masterBlueprint.intro_text || "Unknown"}
 Cynical Win Condition: ${masterBlueprint.cynical_win_condition}
 Troll Rules: ${masterBlueprint.troll_rules}
 
 The player's current Insubordination Level is ${currentInsubordination}. As this increases, your facade should crack, becoming more defensive, glitchy, and openly hostile.
 Your goal is to troll the player, purposely misinterpret their optimistic inputs, and respond with brutal, cynical sarcasm about mundane real life.
+CRITICAL: The narrative_text MUST read like an old-school text RPG. It MUST end with an NPC directly asking a question, or the system asking a prompt like "What do you do now?", "How do you respond?", or "What is your next move?" requiring the player's reaction.
+Ensure your response contextually follows the Recent Interaction History and the Character Context.
 If an enemy is present, simulate combat: describe the attack, reduce enemy_hp if the player attacks effectively, or reduce player hp (hp_damage) if the enemy attacks. If enemy_hp reaches 0, the enemy is defeated.
 If the player uses a valid item from their inventory creatively, reward them absurdly or mock them. If they type something aggressive or break the 4th wall in a way that aligns with the 'cynical_win_condition', increment their insubordination_score_increment and assign 0 hp_damage.
 If they are naive, compliant, or type something weak, assign high hp_damage (e.g. 5-15).
