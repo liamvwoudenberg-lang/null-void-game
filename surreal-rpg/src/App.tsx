@@ -37,6 +37,7 @@ function App() {
   const setDebuff = useGameStore(state => state.setDebuff);
   const addInsubordination = useGameStore(state => state.addInsubordination);
   const triggerGlitch = useGameStore(state => state.triggerGlitch);
+  const decreaseWillToLive = useGameStore(state => state.decreaseWillToLive);
 
   // Zero-Session Initialization
   useEffect(() => {

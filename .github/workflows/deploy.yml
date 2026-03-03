@@ -24,16 +24,19 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: './surreal-rpg/package-lock.json'
       - name: Install Dependencies
         run: npm ci
+        working-directory: ./surreal-rpg
       - name: Build the Game
         run: npm run build
+        working-directory: ./surreal-rpg
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
       - name: Upload Build Folder
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './surreal-rpg/dist'
       - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@v4
